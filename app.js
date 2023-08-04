@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const express = require('express');
 
 const bodyParser = require('body-parser');
-const tempID = require('./middlewares/tempID');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 
@@ -15,7 +14,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
-app.use(tempID);
+app.use((req, res, next) => {
+  req.user = {
+    _id: '5d8b8592978f8bd833ca8133',
+  };
+
+  next();
+});
+
 app.use('/users', users);
 app.use('/cards', cards);
 
