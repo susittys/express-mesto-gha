@@ -49,9 +49,9 @@ module.exports.createUser = (req, res) => {
     return;
   }
 
-  User.create({ name, about, avatar }, { runValidators: true })
-    .then((user) => res.status(201).send(user))
-    .catch((err) => sendErrorMessage({
+  User.create({ name, about, avatar }, { new: true, runValidators: true })
+    .then( user => res.status(201).send(user))
+    .catch( err => sendErrorMessage({
       res,
       ...handleErrors(err.name),
     }));
