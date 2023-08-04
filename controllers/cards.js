@@ -23,8 +23,8 @@ module.exports.createCard = (req, res) => {
     return;
   }
 
-  const card = { name, link, owner };
-  Card.create(card)
+  const newCard = { name, link, owner };
+  Card.create(newCard)
     .then((card) => res.status(200).send({ card }))
     .catch((err) => sendErrorMessage({
       res,

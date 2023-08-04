@@ -13,9 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
-  .then(() => console.log('Подключение к БД успешно'))
-  .catch((err) => console.error(`Ошибка при подключении к БД ${err.message}`));
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(tempID);
 app.use('/users', users);
