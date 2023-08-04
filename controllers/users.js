@@ -3,7 +3,7 @@ const User = require('../models/user');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send(users, 200))
+    .then((users) => res.status(200).send(users))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
@@ -29,7 +29,7 @@ module.exports.getUserByID = (req, res) => {
           res,
           ...handleErrors('notFound'),
         });
-      } else res.send(user, 200);
+      } else res.status(200).send(user);
     })
     .catch((err) => sendErrorMessage({
       res,
@@ -50,7 +50,7 @@ module.exports.createUser = (req, res) => {
   }
 
   User.create({ name, about, avatar }, { runValidators: true })
-    .then((user) => res.send(user, 201))
+    .then((user) => res.status(201).send(user))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
@@ -81,7 +81,7 @@ module.exports.updateProfile = (req, res) => {
           res,
           ...handleErrors('notFound'),
         });
-      } else res.send(user, 200);
+      } else res.status(200).send(user);
     })
     .catch((err) => sendErrorMessage({
       res,
@@ -113,7 +113,7 @@ module.exports.updateAvatar = (req, res) => {
           res,
           ...handleErrors('notFound'),
         });
-      } else res.send(user, 200);
+      } else res.status(200).send(user);
     })
     .catch((err) => sendErrorMessage({
       res,

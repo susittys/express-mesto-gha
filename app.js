@@ -25,10 +25,10 @@ app.use((req, res, next) => {
 app.use('/users', users);
 app.use('/cards', cards);
 
-app.get('*', (req, res) => res.send({ message: 'Обращение к несуществующему адресу :p' }, 404));
-app.post('*', (req, res) => res.send({ message: 'Обращение к несуществующему адресу :p' }, 404));
-app.patch('*', (req, res) => res.send({ message: 'Обращение к несуществующему адресу :p' }, 404));
-app.put('*', (req, res) => res.send({ message: 'Обращение к несуществующему адресу :p' }, 404));
-app.delete('*', (req, res) => res.send({ message: 'Обращение к несуществующему адресу :p' }, 404));
+app.get('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
+app.post('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
+app.patch('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
+app.put('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
+app.delete('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
 
 app.listen(PORT);

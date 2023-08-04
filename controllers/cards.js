@@ -3,7 +3,7 @@ const Card = require('../models/card');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => res.status(200).send(cards))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
@@ -25,7 +25,7 @@ module.exports.createCard = (req, res) => {
 
   const newCard = { name, link, owner };
   Card.create(newCard)
-    .then((card) => res.status(200).send({ card }))
+    .then((card) => res.status(200).send(card))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
@@ -51,7 +51,7 @@ module.exports.deleteCard = (req, res) => {
           .then(() => {
             Card.find({ owner: idOwner })
               .populate(['owner', 'likes'])
-              .then((data) => res.status(200).send({ cards: data }));
+              .then((cards) => res.status(200).send(cards));
           });
       } else {
         sendErrorMessage({
@@ -73,16 +73,7 @@ module.exports.setLikeCard = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => {
-      if (!card) {
-        sendErrorMessage({
-          res,
-          ...handleErrors('empty'),
-        });
-      } else {
-        res.status(200).send({ card });
-      }
-    })
+    .then((card) => card && res.status(200).send(card))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
@@ -96,16 +87,7 @@ module.exports.unsetLikeCard = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => {
-      if (!card) {
-        sendErrorMessage({
-          res,
-          ...handleErrors('empty'),
-        });
-      } else {
-        res.status(200).send({ card });
-      }
-    })
+    .then((card) => card && res.status(200).send(card))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
