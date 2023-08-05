@@ -1,5 +1,4 @@
 module.exports.handleErrors = (errorName) => {
-  console.log(errorName)
   const listErrors = {
     ValidationError: { code: 400, title: 'Переданы некорректные данные' },
     CastError: { code: 400, title: 'Некорректный ID' },
