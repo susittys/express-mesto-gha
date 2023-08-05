@@ -15,9 +15,9 @@ const getCode = (errorName) => {
 
 const sendErrorMessage = ({ res, errorName }) => {
   // console.log(errorName)
-  const { code, title } = getCode(errorName);
+  const { code, message } = getCode(errorName);
 
-  res.status(code).send(title);
+  res.status(code).send({ message });
 };
 
 export default sendErrorMessage;
