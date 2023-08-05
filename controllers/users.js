@@ -57,10 +57,10 @@ module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   const idUser = req.user._id;
 
-  if (!name || !about || !idUser) {
+  if ( !idUser ) {
     sendErrorMessage({
       res,
-      ...handleErrors('notFound'),
+      ...handleErrors('empty'),
     });
 
     return;
@@ -89,7 +89,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const idUser = req.user._id;
 
-  if (!avatar || !idUser) {
+  if ( !idUser) {
     sendErrorMessage({
       res,
       ...handleErrors('empty'),
