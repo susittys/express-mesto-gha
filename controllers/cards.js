@@ -73,13 +73,12 @@ module.exports.setLikeCard = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => card
+    .then((card) => (card
       ? res.status(200).send(card)
       : sendErrorMessage({
         res,
         ...handleErrors('notFound'),
-      })
-    )
+      })))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
@@ -93,13 +92,12 @@ module.exports.unsetLikeCard = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => card
+    .then((card) => (card
       ? res.status(200).send(card)
       : sendErrorMessage({
         res,
         ...handleErrors('notFound'),
-      })
-    )
+      })))
     .catch((err) => sendErrorMessage({
       res,
       ...handleErrors(err.name),
