@@ -1,48 +1,35 @@
-const { handleErrors, sendErrorMessage } = require('../common/errors');
-const Card = require('../models/card');
+import sendErrorMessage from '../common/errors.js';
+import sendSuccessMessage from '../common/success.js';
+import Card from '../models/card.js';
 
-module.exports.getCards = (req, res) => {
+const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.status(200).send(cards))
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .then((cards) => sendSuccessMessage({ res, data: cards }))
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.createCard = (req, res) => {
+const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
   if (!name || !link || !owner) {
-    sendErrorMessage({
-      res,
-      ...handleErrors('empty'),
-    });
-
+    sendErrorMessage({ res, errorName: 'empty' });
     return;
   }
 
   const newCard = { name, link, owner };
   Card.create(newCard)
-    .then((card) => res.status(200).send(card))
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .then((card) => sendSuccessMessage({ res, data: card, successName: 'added' }))
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.deleteCard = (req, res) => {
+const deleteCard = (req, res) => {
   const idOwner = req.user._id;
 
   Card.findById(req.params.id)
     .then((card) => {
       if (!card) {
-        sendErrorMessage({
-          res,
-          ...handleErrors('notFound'),
-        });
-
+        sendErrorMessage({ res, errorName: 'notFound' });
         return;
       }
 
@@ -51,22 +38,16 @@ module.exports.deleteCard = (req, res) => {
           .then(() => {
             Card.find({ owner: idOwner })
               .populate(['owner', 'likes'])
-              .then((cards) => res.status(200).send(cards));
+              .then((cards) => sendSuccessMessage({ res, data: cards }));
           });
       } else {
-        sendErrorMessage({
-          res,
-          ...handleErrors('notOwner'),
-        });
+        sendErrorMessage({ res, errorName: 'notOwner' });
       }
     })
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.setLikeCard = (req, res) => {
+const setLikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -74,32 +55,24 @@ module.exports.setLikeCard = (req, res) => {
   )
     .populate(['owner', 'likes'])
     .then((card) => (card
-      ? res.status(200).send(card)
-      : sendErrorMessage({
-        res,
-        ...handleErrors('notFound'),
-      })))
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+      ? sendSuccessMessage({ res, data: card })
+      : sendErrorMessage({ res, errorName: 'notFound' })))
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.unsetLikeCard = (req, res) => {
+const unsetLikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => (card
-      ? res.status(200).send(card)
-      : sendErrorMessage({
-        res,
-        ...handleErrors('notFound'),
-      })))
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .then((card) => ((card)
+      ? sendSuccessMessage({ res, data: card })
+      : sendErrorMessage({ res, errorName: 'notFound' })))
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+};
+
+export {
+  getCards, createCard, deleteCard, setLikeCard, unsetLikeCard,
 };

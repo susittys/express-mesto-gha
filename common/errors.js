@@ -1,4 +1,4 @@
-module.exports.handleErrors = (errorName) => {
+const getCode = (errorName) => {
   const listErrors = {
     ValidationError: { code: 400, title: 'Переданы некорректные данные' },
     CastError: { code: 400, title: 'Некорректный ID' },
@@ -13,4 +13,11 @@ module.exports.handleErrors = (errorName) => {
     : { code: listErrors.default.code, message: listErrors.default.title };
 };
 
-module.exports.sendErrorMessage = ({ res, code, message }) => res.status(code).send({ message });
+const sendErrorMessage = ({ res, errorName }) => {
+  // console.log(errorName)
+  const { code, title } = getCode(errorName);
+
+  res.status(code).send(title);
+};
+
+export default sendErrorMessage;

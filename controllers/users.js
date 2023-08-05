@@ -1,43 +1,31 @@
-const { handleErrors, sendErrorMessage } = require('../common/errors');
-const User = require('../models/user');
+import sendErrorMessage from '../common/errors.js';
+import sendSuccessMessage from '../common/success.js';
+import User from '../models/user.js';
 
-module.exports.getUsers = (req, res) => {
+const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .then((users) => sendSuccessMessage({ res, data: users }))
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.getUserByID = (req, res) => {
+const getUserByID = (req, res) => {
   const userID = req.params.id;
 
   if (!userID) {
-    sendErrorMessage({
-      res,
-      ...handleErrors('empty'),
-    });
-
+    sendErrorMessage({ res, errorName: 'empty' });
     return;
   }
 
   User.findById(userID)
     .then((user) => {
       if (!user) {
-        sendErrorMessage({
-          res,
-          ...handleErrors('notFound'),
-        });
-      } else res.status(200).send(user);
+        sendErrorMessage({ res, errorName: 'notFound' });
+      } else sendSuccessMessage({ res, data: user });
     })
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.createUser = (req, res) => {
+const createUser = (req, res) => {
   User.create(
     {
       name: req.body.name,
@@ -46,23 +34,16 @@ module.exports.createUser = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.status(201).send(user))
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .then((user) => sendSuccessMessage({ res, data: user, successName: 'added' }))
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.updateProfile = (req, res) => {
+const updateProfile = (req, res) => {
   const { name, about } = req.body;
   const idUser = req.user._id;
 
   if (!idUser) {
-    sendErrorMessage({
-      res,
-      ...handleErrors('empty'),
-    });
-
+    sendErrorMessage({ res, errorName: 'empty' });
     return;
   }
 
@@ -73,28 +54,18 @@ module.exports.updateProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        sendErrorMessage({
-          res,
-          ...handleErrors('notFound'),
-        });
-      } else res.status(200).send(user);
+        sendErrorMessage({ res, errorName: 'empty' });
+      } else sendSuccessMessage({ res, data: user });
     })
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
 
-module.exports.updateAvatar = (req, res) => {
+const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const idUser = req.user._id;
 
   if (!idUser) {
-    sendErrorMessage({
-      res,
-      ...handleErrors('empty'),
-    });
-
+    sendErrorMessage({ res, errorName: 'empty' });
     return;
   }
 
@@ -105,14 +76,12 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        sendErrorMessage({
-          res,
-          ...handleErrors('notFound'),
-        });
-      } else res.status(200).send(user);
+        sendErrorMessage({ res, errorName: 'notFound' });
+      } else sendSuccessMessage({ res, data: user });
     })
-    .catch((err) => sendErrorMessage({
-      res,
-      ...handleErrors(err.name),
-    }));
+    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+};
+
+export {
+  getUsers, updateProfile, getUserByID, createUser, updateAvatar,
 };

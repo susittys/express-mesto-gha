@@ -1,15 +1,11 @@
-const mongoose = require('mongoose');
-const express = require('express');
-
-const bodyParser = require('body-parser');
-const users = require('./routes/users');
-const cards = require('./routes/cards');
+import mongoose from 'mongoose';
+import express from 'express';
+import rootRouter from './routes/index.js';
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
-
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.listen(PORT);
 
@@ -26,11 +22,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/users', users);
-app.use('/cards', cards);
+app.use('/', rootRouter);
 
-app.get('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
-app.post('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
-app.patch('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
-app.put('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
-app.delete('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
+app.all('*', (req, res) => {
+  res.status(404).send({ message: 'Обращение к несуществующему адресу :p' });
+});
