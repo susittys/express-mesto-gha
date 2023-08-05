@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import express from 'express';
 import rootRouter from './routes/index.js';
+import sendErrorMessage from './common/errors.js';
 
 const { PORT = 3000 } = process.env;
 
@@ -25,5 +26,5 @@ app.use((req, res, next) => {
 app.use('/', rootRouter);
 
 app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Обращение к несуществующему адресу :p' });
+  sendErrorMessage({ res, errorName: 'notFound' });
 });

@@ -9,14 +9,9 @@ const getUsers = (req, res) => {
 };
 
 const getUserByID = (req, res) => {
-  const userID = req.params.id;
+  const idUser = req.params.id;
 
-  if (!userID) {
-    sendErrorMessage({ res, errorName: 'empty' });
-    return;
-  }
-
-  User.findById(userID)
+  User.findById(idUser)
     .then((user) => {
       if (!user) {
         sendErrorMessage({ res, errorName: 'notFound' });
@@ -31,7 +26,6 @@ const createUser = (req, res) => {
       name: req.body.name,
       about: req.body.about,
       avatar: req.body.avatar,
-      runValidators: true,
     },
   )
     .then((user) => sendSuccessMessage({ res, data: user, successName: 'added' }))
@@ -41,11 +35,6 @@ const createUser = (req, res) => {
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
   const idUser = req.user._id;
-
-  if (!idUser) {
-    sendErrorMessage({ res, errorName: 'empty' });
-    return;
-  }
 
   User.findByIdAndUpdate(
     idUser,
@@ -63,11 +52,6 @@ const updateProfile = (req, res) => {
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const idUser = req.user._id;
-
-  if (!idUser) {
-    sendErrorMessage({ res, errorName: 'empty' });
-    return;
-  }
 
   User.findByIdAndUpdate(
     idUser,
