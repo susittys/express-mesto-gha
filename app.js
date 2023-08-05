@@ -10,9 +10,13 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+app.listen(PORT);
+
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 app.use((req, res, next) => {
   req.user = {
@@ -30,5 +34,3 @@ app.post('*', (req, res) => res.status(404).send({ message: 'Обращение 
 app.patch('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
 app.put('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
 app.delete('*', (req, res) => res.status(404).send({ message: 'Обращение к несуществующему адресу :p' }));
-
-app.listen(PORT);

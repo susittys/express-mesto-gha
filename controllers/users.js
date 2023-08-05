@@ -38,19 +38,14 @@ module.exports.getUserByID = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  if (!name || !about || !avatar) {
-    sendErrorMessage({
-      res,
-      ...handleErrors('empty'),
-    });
-
-    return;
-  }
-
-  const newUser = { name, about, avatar };
-  User.create(newUser, { new: true, runValidators: true })
+  User.create(
+    {
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+      runValidators: true,
+    },
+  )
     .then((user) => res.status(201).send(user))
     .catch((err) => sendErrorMessage({
       res,
