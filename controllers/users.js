@@ -57,7 +57,7 @@ module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   const idUser = req.user._id;
 
-  if ( !idUser ) {
+  if (!idUser) {
     sendErrorMessage({
       res,
       ...handleErrors('empty'),
@@ -89,7 +89,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const idUser = req.user._id;
 
-  if ( !idUser) {
+  if (!idUser) {
     sendErrorMessage({
       res,
       ...handleErrors('empty'),
