@@ -21,18 +21,14 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const idOwner = req.user._id;
 
-  Card.findById(req.params.id)
+  Card.findByIdAndRemove(req.params.id)
     .then((card) => {
+      if (!card) sendErrorMessage({ res, errorName: 'notFound' });
       if (card.owner.toString() === idOwner) {
-        Card.findByIdAndRemove(req.params.id)
-          .then(() => {
-            Card.find({ owner: idOwner })
-              .populate(['owner', 'likes'])
-              .then((cards) => sendSuccessMessage({ res, data: cards }));
-          });
-      } else {
-        sendErrorMessage({ res, errorName: 'notOwner' });
-      }
+        Card.find({ owner: idOwner })
+          .populate(['owner', 'likes'])
+          .then((cards) => sendSuccessMessage({ res, data: cards }));
+      } else sendErrorMessage({ res, errorName: 'notOwner' });
     })
     .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };
