@@ -42,9 +42,7 @@ const updateProfile = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
-      if (!user) {
-        sendErrorMessage({ res, errorName: 'empty' });
-      } else sendSuccessMessage({ res, data: user });
+      sendSuccessMessage({ res, data: user });
     })
     .catch((err) => sendErrorMessage({ res, errorName: err.name }));
 };

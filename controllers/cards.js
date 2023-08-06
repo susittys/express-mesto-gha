@@ -12,11 +12,6 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
-  if (!name || !link || !owner) {
-    sendErrorMessage({ res, errorName: 'empty' });
-    return;
-  }
-
   const newCard = { name, link, owner };
   Card.create(newCard)
     .then((card) => sendSuccessMessage({ res, data: card, successName: 'added' }))
@@ -28,11 +23,6 @@ const deleteCard = (req, res) => {
 
   Card.findById(req.params.id)
     .then((card) => {
-      if (!card) {
-        sendErrorMessage({ res, errorName: 'notFound' });
-        return;
-      }
-
       if (card.owner.toString() === idOwner) {
         Card.findByIdAndRemove(req.params.id)
           .then(() => {
