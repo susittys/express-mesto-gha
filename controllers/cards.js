@@ -48,16 +48,24 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
+  const idCard = req.params.id;
   const idUser = req.user._id;
 
-  // если тесты не прокатят то вернуть error.Unauthorized('Недостаточно прав');
-  Card.findOneAndDelete({ _id: req.params.id, owner: idUser })
-    .orFail(() => error.NotFound('Карточка не найдена или недостаточно прав'))
-    .then(() => {
-      Card
-        .find({ owner: idUser })
-        .populate(['owner', 'likes'])
-        .then((data) => handlerResult(res, data));
+  Card
+    .findById(idCard)
+    .populate('owner')
+    .then((card) => {
+      if ( !card) throw error.NotFound('Карточка не найдена')
+
+      if ( card.owner._id.toString() !== idUser ) throw error.Unauthorized('Недостаточно прав');
+
+      Card.findByIdAndDelete(idCard)
+        .then( () => {
+          Card
+            .find({ owner: idUser })
+            .populate(['owner', 'likes'])
+            .then((data) => handlerResult(res, data));
+        })
     })
     .catch((err) => handlerError(res, err, next));
 };
