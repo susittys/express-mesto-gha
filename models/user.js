@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import isEmail from 'validator/lib/isEmail.js';
-import isURL from 'validator/lib/isURL.js';
 import Error from '../common/errors.js';
 
 const error = Error();
@@ -11,22 +10,24 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: 2,
     maxlength: 30,
-    default: 'Жак-Ив-Кусто',
+    default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
     minlength: 2,
     maxlength: 30,
-    default: 'Исследователь Мирового океана',
+    default: 'Исследователь',
   },
   avatar: {
     type: String,
-    validate: isURL,
-    default: 'https://i1.sndcdn.com/artworks-000056497777-92oyrv-t500x500.jpg',
+    validate: /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
-    validate: isEmail,
+    validate: {
+      validator: isEmail,
+    },
     unique: true,
     required: true,
   },

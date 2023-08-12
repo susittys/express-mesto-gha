@@ -12,8 +12,8 @@ const error = Error();
 const { checkEmail } = Validator();
 
 const handlerError = (res, err, next) => {
-  if (err instanceof mongoose.Error.CastError) {
-    next(error.BadRequest('Не найден пользователь с данным ID'));
+  if (err instanceof mongoose.Error.CastError || err.name === 'ValidationError') {
+    next(error.BadRequest('Не корректные данные пользователя'));
   } else if (err.code === 11000) {
     next(error.existEmail('Такой email уже существует'));
   } else {

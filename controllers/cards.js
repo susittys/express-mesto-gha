@@ -8,8 +8,8 @@ const error = Error();
 const { checkImgURL } = Validator();
 
 const handlerError = (res, err, next) => {
-  if (err instanceof mongoose.Error.CastError) {
-    next(error.BadRequest('Некорректный ID карточки'));
+  if (err instanceof mongoose.Error.CastError || err.name === 'ValidationError') {
+    next(error.BadRequest('Некорректный данные карточки'));
   } else {
     next(err);
   }
