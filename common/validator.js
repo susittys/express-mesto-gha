@@ -19,38 +19,42 @@ export default () => {
 
   const loginUserValidator = celebrate({
     body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(4),
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
     }),
   });
 
   const createUserValidator = celebrate({
     body: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
       avatar: Joi.string().regex(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(4),
     }),
   });
 
   const createCardValidator = celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required().custom(isURL, 'URL validation'),
+      link: Joi.string()
+        .required()
+        .regex(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
     }),
   });
 
   const updUserInfoValidator = celebrate({
     body: Joi.object().keys({
-      name: Joi.string().required().min(2).max(30),
-      about: Joi.string().required().min(2).max(30),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
     }),
   });
 
   const updUserAvatarValidator = celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string().required().custom(isURL, 'URL validation'),
+      avatar: Joi.string().regex(
+        /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
+      ),
     }),
   });
 
