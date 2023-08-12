@@ -13,13 +13,13 @@ import handlerError from './middlewares/handlerError.js';
 import Errors from './common/errors.js';
 
 config();
-const { DEV_PORT, HOST, DB } = process.env;
+const { DEV_PORT } = process.env;
 
 const app = express();
 
 app.listen(DEV_PORT);
 
-mongoose.connect(HOST + DB, {
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });

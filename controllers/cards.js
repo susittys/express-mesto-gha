@@ -34,11 +34,11 @@ const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
-  if ( !checkImgURL(link) ) throw error.BadRequest('Не корректно указана ссылка')
+  if (!checkImgURL(link)) throw error.BadRequest('Не корректно указана ссылка');
 
   const newCard = {
     name: escape(name),
-    link: link,
+    link,
     owner,
   };
   Card
@@ -51,13 +51,13 @@ const deleteCard = (req, res, next) => {
   const idUser = req.user._id;
 
   // если тесты не прокатят то вернуть error.Unauthorized('Недостаточно прав');
-  Card.findOneAndDelete({ _id: req.params.id, owner: idUser})
+  Card.findOneAndDelete({ _id: req.params.id, owner: idUser })
     .orFail(() => error.NotFound('Карточка не найдена или недостаточно прав'))
     .then(() => {
-        Card
-          .find({ owner: idUser })
-          .populate(['owner', 'likes'])
-          .then((data) => handlerResult(res, data))
+      Card
+        .find({ owner: idUser })
+        .populate(['owner', 'likes'])
+        .then((data) => handlerResult(res, data));
     })
     .catch((err) => handlerError(res, err, next));
 };
