@@ -54,7 +54,7 @@ function hashedPassword(pass) {
   return bcrypt.hash(pass, 10);
 }
 
-function bodyParser(data) {
+function bodyParser(data, hash) {
   const result = {};
 
   const allowedKeys = ['name', 'about', 'avatar', 'email'];
@@ -65,6 +65,8 @@ function bodyParser(data) {
     }
   });
 
+  result.password = hash;
+
   return result;
 }
 
@@ -72,8 +74,12 @@ const createUser = (req, res, next) => {
   if (!checkEmail(req.body.email)) error.BadRequest('Не корректный адрес электронной почты');
 
   hashedPassword(req.body.password)
-    .then(() => User.create(bodyParser(req.body)))
-    .then((user) => handlerResult(res, user))
+    .then((hash) => User.create(bodyParser(req.body, hash)))
+    .then(({
+      _id, name, about, avatar, email,
+    }) => handlerResult(res, {
+      _id, name, about, avatar, email,
+    }))
     .catch((err) => handlerError(res, err, next));
 };
 
