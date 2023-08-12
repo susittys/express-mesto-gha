@@ -58,7 +58,8 @@ export default () => {
 
   const checkId = celebrate({
     params: Joi.object().keys({
-      id: Joi.string().alphanum().length(24),
+      id: Joi.string().alphanum().length(24).hex()
+        .required(),
     }),
   });
 

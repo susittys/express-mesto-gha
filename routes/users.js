@@ -5,11 +5,11 @@ import {
 import Validator from '../common/validator.js';
 
 const router = Router();
-const { updUserInfoValidator, updUserAvatarValidator } = Validator();
+const { checkId, updUserInfoValidator, updUserAvatarValidator } = Validator();
 
 router.get('/', getUsers);
 router.get('/me', getUserMe);
-router.get('/:id', getUserByID);
+router.get('/:id', checkId, getUserByID);
 
 router.patch('/me', updUserInfoValidator, updateProfile);
 router.patch('/me/avatar', updUserAvatarValidator, updateAvatar);
