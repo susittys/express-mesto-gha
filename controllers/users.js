@@ -13,6 +13,7 @@ const { checkEmail } = Validator();
 
 const handlerError = (res, err, next) => {
   if (err instanceof mongoose.Error.CastError || err.name === 'ValidationError') {
+    console.log(err)
     next(error.BadRequest('Не корректные данные пользователя'));
   } else if (err.code === 11000) {
     next(error.existEmail('Такой email уже существует'));
@@ -66,6 +67,8 @@ function bodyParser(data, hash) {
   });
 
   result.password = hash;
+
+  console.log('PIZDEZ', data.avatar)
 
   return result;
 }

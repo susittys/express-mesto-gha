@@ -14,7 +14,7 @@ export default () => {
   const checkImgURL = (url) => String(url)
     .toLowerCase()
     .match(
-      /^https?:\/\/.+\/.+$/,
+      /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
     );
 
   const loginUser = celebrate({
@@ -28,7 +28,7 @@ export default () => {
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().custom(isURL, 'URL validation'),
+      avatar: Joi.string().regex(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
       email: Joi.string().required().email(),
       password: Joi.string().required().min(4),
     }),
