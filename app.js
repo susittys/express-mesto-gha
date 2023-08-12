@@ -39,9 +39,9 @@ app.use('/users', auth, users);
 
 app.use('/', rootRouter);
 
-const errors = Errors();
+const error = Errors();
 app.all('*', (err, req, res, next) => (err
-  ? next(errors.NotFound('Ресурс по вашему запросу не найден'))
+  ? next(error.NotFound('Ресурс по вашему запросу не найден'))
   : next()));
 
 app.use(handlerError);
