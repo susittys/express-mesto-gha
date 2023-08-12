@@ -1,69 +1,137 @@
-import sendErrorMessage from '../common/errors.js';
-import sendSuccessMessage from '../common/success.js';
+import mongoose from 'mongoose';
+import escape from 'escape-html';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import Error from '../common/errors.js';
+import Validator from '../common/validator.js';
 import User from '../models/user.js';
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => sendSuccessMessage({ res, data: users }))
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+const error = Error();
+const { checkEmail } = Validator();
+
+const handlerError = (res, err, next) => {
+  if (err instanceof mongoose.Error.CastError) {
+    next(error.BadRequest('Не найден пользователь с данным ID'));
+  } else if (err.code === 11000) {
+    next(error.existEmail('Такой email уже существует'));
+  } else {
+    next(err);
+  }
 };
 
-const getUserByID = (req, res) => {
+function handlerResult(res, user) {
+  if (!user) {
+    throw error.NotFound('Некорректный ID пользователя');
+  } else {
+    res.status(200).send(user);
+  }
+}
+
+const getUsers = (req, res, next) => {
+  User
+    .find({})
+    .then((users) => handlerResult(res, users))
+    .catch((err) => handlerError(res, err, next));
+};
+
+const getUserByID = (req, res, next) => {
   const idUser = req.params.id;
 
-  User.findById(idUser)
-    .then((user) => {
-      if (!user) {
-        sendErrorMessage({ res, errorName: 'notFound' });
-      } else sendSuccessMessage({ res, data: user });
-    })
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+  User
+    .findById(idUser)
+    .then((user) => handlerResult(res, user))
+    .catch((err) => handlerError(res, err, next));
 };
 
-const createUser = (req, res) => {
-  User.create(
-    {
-      name: req.body.name,
-      about: req.body.about,
-      avatar: req.body.avatar,
-    },
-  )
-    .then((user) => sendSuccessMessage({ res, data: user, successName: 'added' }))
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+// проверка на содержание и кодирование пароля
+function hashedPassword(pass) {
+  if (!pass) {
+    throw error.BadRequest('Отсутствует пароль');
+  }
+
+  return bcrypt.hash(pass, 10);
+}
+
+function bodyParser(data, hash) {
+  const result = {};
+
+  const allowedKeys = ['name', 'about', 'avatar', 'email'];
+
+  allowedKeys.forEach((key) => {
+    if (data[key]) {
+      result[key] = escape(data[key]);
+    }
+  });
+
+  result.password = hash;
+
+  return result;
+}
+
+const createUser = (req, res, next) => {
+  if (!checkEmail(req.body.email)) error.BadRequest('Не корректный адрес электронной почты');
+
+  hashedPassword(req.body.password)
+    .then((hashedPass) => User.create(bodyParser(req.body, hashedPass)))
+    .then((user) => handlerResult(res, user))
+    .catch((err) => handlerError(res, err, next));
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const idUser = req.user._id;
 
-  User.findByIdAndUpdate(
-    idUser,
-    { name, about },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      sendSuccessMessage({ res, data: user });
-    })
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+  User
+    .findByIdAndUpdate(idUser, { name, about }, { new: true, runValidators: true })
+    .then((user) => handlerResult(res, user))
+    .catch((err) => handlerError(res, err, next));
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const idUser = req.user._id;
 
-  User.findByIdAndUpdate(
-    idUser,
-    { avatar },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      if (!user) {
-        sendErrorMessage({ res, errorName: 'notFound' });
-      } else sendSuccessMessage({ res, data: user });
-    })
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+  User
+    .findByIdAndUpdate(idUser, { avatar }, { new: true, runValidators: true })
+    .then((user) => handlerResult(res, user))
+    .catch((err) => handlerError(res, err, next));
+};
+
+const getUserMe = (req, res, next) => {
+  const idUser = req.user._id;
+
+  User
+    .findById(idUser)
+    .then((user) => handlerResult(res, user))
+    .catch((err) => handlerError(res, err, next));
+};
+
+function handleResCookies(res, user) {
+  const token = jwt.sign(
+    { _id: user._id },
+    NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret-key',
+    { expiresIn: '7d' },
+  );
+
+  res
+    .status(200)
+    .cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true, sameSite: true })
+    .end();
+}
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => handleResCookies(res, user))
+    .catch((err) => {
+      res.clearCookie('jwt');
+      next(err);
+    });
 };
 
 export {
-  getUsers, updateProfile, getUserByID, createUser, updateAvatar,
+  login, getUsers, getUserMe, updateProfile, getUserByID, createUser, updateAvatar,
 };

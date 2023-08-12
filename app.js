@@ -1,30 +1,47 @@
+import { config } from 'dotenv';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import rootRouter from './routes/index.js';
-import sendErrorMessage from './common/errors.js';
+import { login, createUser } from './controllers/users.js';
+import Validator from './common/validator.js';
+import users from './routes/users.js';
+import cards from './routes/cards.js';
+import auth from './middlewares/auth.js';
+import handlerError from './middlewares/handlerError.js';
+import Errors from './common/errors.js';
 
-const { PORT = 3000 } = process.env;
+config();
+const { DEV_PORT, HOST, DB } = process.env;
 
 const app = express();
-app.use(express.json());
 
-app.listen(PORT);
+app.listen(DEV_PORT);
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect(HOST + DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5d8b8592978f8bd833ca8133',
-  };
+app.use(helmet());
 
-  next();
-});
+app.use(express.json());
+
+app.use(cookieParser());
+
+const validator = Validator();
+app.post('/signup', validator.createUser, createUser);
+app.post('/signin', validator.loginUser, login);
+
+app.use('/cards', auth, cards);
+app.use('/users', auth, users);
 
 app.use('/', rootRouter);
 
-app.all('*', (req, res) => {
-  sendErrorMessage({ res, errorName: 'notFound' });
-});
+const errors = Errors();
+app.all('*', (err, req, res, next) => (err
+  ? next(errors.NotFound('Ресурс по вашему запросу не найден'))
+  : next()));
+
+app.use(handlerError);

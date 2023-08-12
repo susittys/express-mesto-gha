@@ -1,62 +1,91 @@
-import sendErrorMessage from '../common/errors.js';
-import sendSuccessMessage from '../common/success.js';
+import mongoose from 'mongoose';
+import escape from 'escape-html';
+import Error from '../common/errors.js';
+import Validator from '../common/validator.js';
 import Card from '../models/card.js';
 
-const getCards = (req, res) => {
-  Card.find({})
-    .then((cards) => sendSuccessMessage({ res, data: cards }))
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+const error = Error();
+const { checkImgURL } = Validator();
+
+const handlerError = (res, err, next) => {
+  if (err instanceof mongoose.Error.CastError) {
+    next(error.BadRequest('Некорректный ID карточки'));
+  } else {
+    next(err);
+  }
 };
 
-const createCard = (req, res) => {
+function handlerResult(res, card) {
+  if (!card) {
+    throw error.NotFound('Данной карточки не существует');
+  } else {
+    res.status(200).send(card);
+  }
+}
+
+const getCards = (req, res, next) => {
+  Card
+    .find({})
+    .then((cards) => handlerResult(res, cards))
+    .catch((err) => handlerError(res, err, next));
+};
+
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
-  const newCard = { name, link, owner };
-  Card.create(newCard)
-    .then((card) => sendSuccessMessage({ res, data: card, successName: 'added' }))
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+  if ( !checkImgURL(link) ) throw error.BadRequest('Не корректно указана ссылка')
+
+  const newCard = {
+    name: escape(name),
+    link: link,
+    owner,
+  };
+  Card
+    .create(newCard)
+    .then((card) => handlerResult(res, card))
+    .catch((err) => handlerError(res, err, next));
 };
 
-const deleteCard = (req, res) => {
-  const idOwner = req.user._id;
+const deleteCard = (req, res, next) => {
+  const idUser = req.user._id;
 
-  Card.findByIdAndRemove(req.params.id)
-    .then((card) => {
-      if (!card) sendErrorMessage({ res, errorName: 'notFound' });
-      if (card.owner.toString() === idOwner) {
-        Card.find({ owner: idOwner })
+  // если тесты не прокатят то вернуть error.Unauthorized('Недостаточно прав');
+  Card.findOneAndDelete({ _id: req.params.id, owner: idUser})
+    .orFail(() => error.NotFound('Карточка не найдена или недостаточно прав'))
+    .then(() => {
+        Card
+          .find({ owner: idUser })
           .populate(['owner', 'likes'])
-          .then((cards) => sendSuccessMessage({ res, data: cards }));
-      } else sendErrorMessage({ res, errorName: 'notOwner' });
+          .then((data) => handlerResult(res, data))
     })
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+    .catch((err) => handlerError(res, err, next));
 };
 
-const setLikeCard = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
+const setLikeCard = (req, res, next) => {
+  Card
+    .findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    )
+    .orFail(() => error.NotFound('Карточка не найдена'))
     .populate(['owner', 'likes'])
-    .then((card) => (card
-      ? sendSuccessMessage({ res, data: card })
-      : sendErrorMessage({ res, errorName: 'notFound' })))
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+    .then((card) => handlerResult(res, card))
+    .catch((err) => handlerError(res, err, next));
 };
 
-const unsetLikeCard = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
+const unsetLikeCard = (req, res, next) => {
+  Card
+    .findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true },
+    )
+    .orFail(() => error.NotFound('Карточка не найдена'))
     .populate(['owner', 'likes'])
-    .then((card) => ((card)
-      ? sendSuccessMessage({ res, data: card })
-      : sendErrorMessage({ res, errorName: 'notFound' })))
-    .catch((err) => sendErrorMessage({ res, errorName: err.name }));
+    .then((card) => handlerResult(res, card))
+    .catch((err) => handlerError(res, err, next));
 };
 
 export {
