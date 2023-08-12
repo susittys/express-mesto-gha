@@ -17,14 +17,14 @@ export default () => {
       /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
     );
 
-  const loginUser = celebrate({
+  const loginUserValidator = celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().required().min(4),
     }),
   });
 
-  const createUser = celebrate({
+  const createUserValidator = celebrate({
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
@@ -34,21 +34,21 @@ export default () => {
     }),
   });
 
-  const createCard = celebrate({
+  const createCardValidator = celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
       link: Joi.string().required().custom(isURL, 'URL validation'),
     }),
   });
 
-  const updateUserInfo = celebrate({
+  const updUserInfoValidator = celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
       about: Joi.string().required().min(2).max(30),
     }),
   });
 
-  const updateUserAvatar = celebrate({
+  const updUserAvatarValidator = celebrate({
     body: Joi.object().keys({
       avatar: Joi.string().required().custom(isURL, 'URL validation'),
     }),
@@ -64,10 +64,10 @@ export default () => {
     checkId,
     checkEmail,
     checkImgURL,
-    loginUser,
-    createUser,
-    createCard,
-    updateUserInfo,
-    updateUserAvatar,
+    loginUserValidator,
+    createUserValidator,
+    createCardValidator,
+    updUserInfoValidator,
+    updUserAvatarValidator,
   };
 };

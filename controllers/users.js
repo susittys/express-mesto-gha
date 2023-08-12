@@ -13,7 +13,6 @@ const { checkEmail } = Validator();
 
 const handlerError = (res, err, next) => {
   if (err instanceof mongoose.Error.CastError || err.name === 'ValidationError') {
-    console.log(err)
     next(error.BadRequest('Не корректные данные пользователя'));
   } else if (err.code === 11000) {
     next(error.existEmail('Такой email уже существует'));
@@ -55,7 +54,7 @@ function hashedPassword(pass) {
   return bcrypt.hash(pass, 10);
 }
 
-function bodyParser(data, hash) {
+function bodyParser(data) {
   const result = {};
 
   const allowedKeys = ['name', 'about', 'avatar', 'email'];
@@ -66,10 +65,6 @@ function bodyParser(data, hash) {
     }
   });
 
-  result.password = hash;
-
-  console.log('PIZDEZ', data.avatar)
-
   return result;
 }
 
@@ -77,7 +72,7 @@ const createUser = (req, res, next) => {
   if (!checkEmail(req.body.email)) error.BadRequest('Не корректный адрес электронной почты');
 
   hashedPassword(req.body.password)
-    .then((hashedPass) => User.create(bodyParser(req.body, hashedPass)))
+    .then(() => User.create(bodyParser(req.body)))
     .then((user) => handlerResult(res, user))
     .catch((err) => handlerError(res, err, next));
 };

@@ -30,9 +30,9 @@ app.use(express.json());
 
 app.use(cookieParser());
 
-const validator = Validator();
-app.post('/signup', validator.createUser, createUser);
-app.post('/signin', validator.loginUser, login);
+const {createUserValidator, loginUserValidator} = Validator();
+app.post('/signup', createUserValidator, createUser);
+app.post('/signin', loginUserValidator, login);
 
 app.use('/cards', auth, cards);
 app.use('/users', auth, users);
