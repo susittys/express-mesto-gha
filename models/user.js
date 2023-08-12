@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
 userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) throw error.NotFound('Не найден пользователь с данным ID');
+      if (!user) throw error.Unauthorized('Не найден пользователь с данным ID');
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
