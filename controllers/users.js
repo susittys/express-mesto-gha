@@ -122,14 +122,18 @@ function handleResCookies(res, user) {
   res
     .status(200)
     .cookie('jwt', token, { maxAge: 3600000 * 24 * 7, httpOnly: true, sameSite: true })
-    .end();
+    .send(user);
 }
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
-    .then((user) => handleResCookies(res, user))
+    .then((user) => {
+      if (!user) throw error.Unauthorized('Не найден пользователь или неверный пароль');
+
+      handleResCookies(res, user);
+    })
     .catch((err) => {
       res.clearCookie('jwt');
       next(err);

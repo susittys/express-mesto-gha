@@ -5,13 +5,13 @@ import {
 import Validator from '../common/validator.js';
 
 const router = Router();
-const { createCardValidator } = Validator();
+const { createCardValidator, checkId } = Validator();
 
 router.get('/', getCards);
 router.post('/', createCardValidator, createCard);
-router.delete('/:id', deleteCard);
+router.delete('/:id', checkId, deleteCard);
 
-router.put('/:cardId/likes', setLikeCard);
-router.delete('/:cardId/likes', unsetLikeCard);
+router.put('/:cardId/likes', checkId, setLikeCard);
+router.delete('/:cardId/likes', checkId, unsetLikeCard);
 
 export default router;

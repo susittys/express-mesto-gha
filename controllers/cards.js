@@ -55,17 +55,17 @@ const deleteCard = (req, res, next) => {
     .findById(idCard)
     .populate('owner')
     .then((card) => {
-      if ( !card) throw error.NotFound('Карточка не найдена')
+      if (!card) throw error.NotFound('Карточка не найдена');
 
-      if ( card.owner._id.toString() !== idUser ) throw error.Unauthorized('Недостаточно прав');
+      if (card.owner._id.toString() !== idUser) throw error.Forbidden('Недостаточно прав');
 
       Card.findByIdAndDelete(idCard)
-        .then( () => {
+        .then(() => {
           Card
             .find({ owner: idUser })
             .populate(['owner', 'likes'])
             .then((data) => handlerResult(res, data));
-        })
+        });
     })
     .catch((err) => handlerError(res, err, next));
 };
