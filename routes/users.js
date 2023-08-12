@@ -2,10 +2,10 @@ import { Router } from 'express';
 import {
   getUsers, getUserByID, getUserMe, updateProfile, updateAvatar,
 } from '../controllers/users.js';
-import Validator from "../common/validator.js";
+import Validator from '../common/validator.js';
 
 const router = Router();
-const { updUserInfoValidator, updUserAvatarValidator} = Validator();
+const { updUserInfoValidator, updUserAvatarValidator } = Validator();
 
 router.get('/', getUsers);
 router.get('/me', getUserMe);

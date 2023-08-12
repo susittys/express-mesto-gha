@@ -1,7 +1,5 @@
 import { celebrate, Joi } from 'celebrate';
 
-import isURL from 'validator/lib/isURL.js';
-
 export default () => {
   // проверка почты
   const checkEmail = (email) => String(email)
