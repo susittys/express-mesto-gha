@@ -72,7 +72,6 @@ const deleteCard = (req, res, next) => {
 
 const setLikeCard = (req, res, next) => {
   const { cardId } = req.params;
-
   if (!mongoose.isValidObjectId(cardId)) throw error.BadRequest('Не правильно указан ID карточки');
   Card
     .findByIdAndUpdate(

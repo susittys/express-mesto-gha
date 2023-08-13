@@ -5,13 +5,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { errors } from 'celebrate';
 import rootRouter from './routes/index.js';
-import { login, createUser } from './controllers/users.js';
-import Validator from './common/validator.js';
-import users from './routes/users.js';
-import cards from './routes/cards.js';
-import auth from './middlewares/auth.js';
 import handlerError from './middlewares/handlerError.js';
-import Error from './common/errors.js';
 
 config();
 const { DEV_PORT } = process.env;
@@ -31,19 +25,8 @@ app.use(express.json());
 
 app.use(cookieParser());
 
-const { createUserValidator, loginUserValidator } = Validator();
-app.post('/signup', createUserValidator, createUser);
-app.post('/signin', loginUserValidator, login);
-
-app.use('/cards', auth, cards);
-app.use('/users', auth, users);
-
 app.use('/', rootRouter);
 
-const error = Error();
-app.all('*', (err, req, res, next) => (err
-  ? next(error.NotFound('Ресурс по вашему запросу не найден'))
-  : next()));
-
 app.use(errors());
+
 app.use(handlerError);
