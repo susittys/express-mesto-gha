@@ -71,11 +71,11 @@ const deleteCard = (req, res, next) => {
 };
 
 const setLikeCard = (req, res, next) => {
-  const { cardId } = req.params;
-  if (!mongoose.isValidObjectId(cardId)) throw error.BadRequest('Не правильно указан ID карточки');
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) throw error.BadRequest('Не правильно указан ID карточки');
   Card
     .findByIdAndUpdate(
-      cardId,
+      id,
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
@@ -88,7 +88,7 @@ const setLikeCard = (req, res, next) => {
 const unsetLikeCard = (req, res, next) => {
   Card
     .findByIdAndUpdate(
-      req.params.cardId,
+      req.params.id,
       { $pull: { likes: req.user._id } },
       { new: true },
     )
