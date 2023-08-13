@@ -15,11 +15,11 @@ const handlerError = (res, err, next) => {
   }
 };
 
-function handlerResult(res, card) {
+function handlerResult(res, card, newRes = false) {
   if (!card) {
     throw error.NotFound('Данной карточки не существует');
   } else {
-    res.status(200).send(card);
+    res.status(newRes ? 201 : 200).send(card);
   }
 }
 
@@ -43,7 +43,7 @@ const createCard = (req, res, next) => {
   };
   Card
     .create(newCard)
-    .then((card) => handlerResult(res, card))
+    .then((card) => handlerResult(res, card, true))
     .catch((err) => handlerError(res, err, next));
 };
 
@@ -59,7 +59,7 @@ const deleteCard = (req, res, next) => {
 
       if (card.owner._id.toString() !== idUser) throw error.Forbidden('Недостаточно прав');
 
-      Card.findByIdAndDelete(idCard)
+      Card.deleteOne(card)
         .then(() => {
           Card
             .find({ owner: idUser })

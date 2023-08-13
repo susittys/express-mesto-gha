@@ -1,19 +1,16 @@
 import { celebrate, Joi } from 'celebrate';
+import { regexEmail, regexUrl } from '../utils/constants.js';
 
 export default () => {
   // проверка почты
   const checkEmail = (email) => String(email)
     .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
+    .match(regexEmail);
 
   // проверка аватара
   const checkImgURL = (url) => String(url)
     .toLowerCase()
-    .match(
-      /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
-    );
+    .match(regexUrl);
 
   const loginUserValidator = celebrate({
     body: Joi.object().keys({
@@ -28,7 +25,7 @@ export default () => {
       password: Joi.string().required(),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().regex(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
+      avatar: Joi.string().regex(regexUrl),
     }),
   });
 
@@ -37,7 +34,7 @@ export default () => {
       name: Joi.string().required().min(2).max(30),
       link: Joi.string()
         .required()
-        .regex(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
+        .regex(regexUrl),
     }),
   });
 
@@ -50,9 +47,7 @@ export default () => {
 
   const updUserAvatarValidator = celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string().regex(
-        /https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i,
-      ),
+      avatar: Joi.string().regex(regexUrl),
     }),
   });
 

@@ -14,8 +14,9 @@ const { createUserValidator, loginUserValidator } = Validator();
 rootRouter.post('/signup', createUserValidator, createUser);
 rootRouter.post('/signin', loginUserValidator, login);
 
-rootRouter.use('/users', auth, users);
-rootRouter.use('/cards', auth, cards);
+rootRouter.use(auth);
+rootRouter.use('/users', users);
+rootRouter.use('/cards', cards);
 
 const errors = Errors();
 rootRouter.all('*', (err, req, next) => {

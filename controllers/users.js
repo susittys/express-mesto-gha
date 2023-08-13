@@ -21,11 +21,11 @@ const handlerError = (res, err, next) => {
   }
 };
 
-function handlerResult(res, user) {
+function handlerResult(res, user, newRes = false) {
   if (!user) {
     throw error.NotFound('Некорректный ID пользователя');
   } else {
-    res.status(200).send(user);
+    res.status(newRes ? 201 : 200).send(user);
   }
 }
 
@@ -79,7 +79,7 @@ const createUser = (req, res, next) => {
       _id, name, about, avatar, email,
     }) => handlerResult(res, {
       _id, name, about, avatar, email,
-    }))
+    }, true))
     .catch((err) => handlerError(res, err, next));
 };
 
