@@ -11,7 +11,7 @@ router.get('/', getCards);
 router.post('/', createCardValidator, createCard);
 router.delete('/:id', checkId, deleteCard);
 
-router.put('/:cardId/likes', checkId, setLikeCard);
-router.delete('/:cardId/likes', checkId, unsetLikeCard);
+router.put('/:id/likes', checkId, setLikeCard);
+router.delete('/:id/likes', checkId, unsetLikeCard);
 
 export default router;
